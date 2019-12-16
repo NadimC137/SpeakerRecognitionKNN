@@ -2,7 +2,7 @@ clc;
 clear all;
 close all;
 
-%% taking voice data for testing
+% taking voice data for testing
 file = input('What file would you like to open?:', 's');
 [audioIn,fs] = audioread(file);
 
