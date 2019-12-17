@@ -1,1 +1,1 @@
-# # Speaker Recognition using Pitch, MFCC and KNN classifier
+# Speaker Recognition using Pitch, MFCC and KNN classifier
