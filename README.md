@@ -58,4 +58,137 @@ This project has two parts:
 In training module, all speakers voice data were recorded along with his name/no. to extract features from their voice and then store them in an excel file, for later use (testing). All the steps of training module is explained step by step below-
 
 #### Collecting voice data along with Speaker ID: 
-We take voice samples from each of our team members, and a voice ID for each of us (Dhrubo=1, Nadim=2, Rafee=3). We collect voice data using Window 10’s default voice recorder, as we faced some problem recording voice on matlab.
+We take voice samples from each of the volunteer speakers, and a voice ID for each of them (Dhrubo=1, Nadim=2, Rafee=3). We collect voice data using Window 10’s default voice recorder for better quality of the voice data.
+
+
+```matlab
+% Taking User ID and voice data for training
+delete C:\Users\User\Documents\'Sound recordings'\Recording.m4a
+ 
+system('C:\Users\User\Desktop\Voice Recorder.lnk');
+ 
+ 
+prompt = 'User No?:'; %dhrubo=1, nadim=2, rafee=3
+user = input(prompt)
+ 
+if user==1 || user==2 || user==3
+   [audioIn,fs] = audioread('C:\Users\User\Documents\Sound recordings\Recording.m4a'); 
+else
+    return;
+end
+```
+#### Defining Overlapping window:
+We will take small portion of the signal at a time (frame) and perform calculation. Then we will go forward a little and calculate again. This kind of method is called overlapping window.
+
+
+<img src="https://github.com/NadimC137/SpeakerRecognitionKNN/blob/master/images/overlap1.png" width="600">
+
+Each frame will act as a training sample. In each frame we will perform speech detection, pitch and MFCC.
+
+Here we have defined window length, overlap length and hop length-
+
+```matlab
+% defining framesize of samples  to extract features
+windowlength = round(0.03*fs); % 30ms
+overlaplength = round(0.02*fs); %20ms
+hoplength = windowlength - overlaplength;
+```
+
+#### Speech Detection, Pitch and MFCC:
+For each frame we need to detect if it a speech or non-speech data. If it is speech then we will do further calculation, otherwise not. For detecting speech steps are-
+* Calculate average power of frame.
+* If average value it higher than a threshold value, then its speech data.
+
+This method is called short time average power algorithm. Then if the frame is speech data we calculate its pitch and MFCC.
+Then we calculate pitch and MFCC for this frame. In Matlab 2018, we have built in functions for pitch and MFCC. So we used those instead of making user defined function.
+Matlab code for these calculations-
+
+```matlab
+% extracting speech data from whole audio data (noise cancellation) and calculating pitch and MFCC
+frame=zeros(windowlength,1);
+audioIn2= zeros(length(audioIn),1);
+j=0;
+limit=0;
+f1=[];
+coeffs=[];
+ 
+while limit<length(audioIn) 
+   a=(j*hoplength)+1;
+   b=a+windowlength;
+   frame=audioIn(a:b,1);
+   framesq=frame.^2;
+   avgpow=sum(framesq)/windowlength;
+   
+   if avgpow> 1e-4
+    audioIn2(a:b,1)=frame;
+    fx = pitch(frame,fs, ...
+    'WindowLength',windowlength, ...
+    'OverlapLength',overlaplength, ...
+    'Range',[50 400], ...
+    'MedianFilterLength',3);
+    coeffsx = mfcc(frame,fs,'LogEnergy','Replace');
+    f1= [f1; fx];
+    coeffs=[coeffs; coeffsx];
+   end
+   j=j+1;
+   limit=(j*hoplength)+1+windowlength;
+end
+```
+
+#### Exporting training data to excel file:
+We merge together MFCC and pitch data for same frames and append user ID of that frame. We get a huge matrix of 15 columns, where 14 of them are features (MFCC and pitch) and last one is user ID. We save the data in excel file.
+
+```matlab
+%% combining pitch and MFCC and exporting total feature data to excel sheet
+[m,n] = size(coeffs)
+coeffs2=[coeffs f1 ones(m,1)*user]; %appending pitch with MFCC, to get 14 features together
+ 
+filename = 'traindata.xlsx'; %import training excel file to append new samples   
+past=xlsread(filename);
+new=[past; coeffs2];
+xlswrite(filename,new);
+```
+
+Excel data looks like this-
+
+<img src="https://github.com/NadimC137/SpeakerRecognitionKNN/blob/master/images/exceldata.png" width="600">
+
+### Part 2: Testing Module:
+In testing module we will take speaker voice to detect the speaker. We will use previously stored speech data in training module and apply machine learning.
+These steps below for testing module are almost exactly same as training module-
+* Collecting voice data ( here we will not take user ID data because this is our task to find out)
+* Defining Window length.
+* Detecting speech data, calculating pitch and MFCC.
+
+#### Feature Scaling:
+Now we will Import Excel data that we stored in training phase. Now we have training data in excel file from training phase and test data. All features in both these data need feature scaling for better convergence. Formula and matlab code looks like below:
+
+<img src="https://github.com/NadimC137/SpeakerRecognitionKNN/blob/master/images/eqn1.gif" width="400">
+
+```matlab
+%% loading training data to start machine learning algorithm (K nearest neighbor)
+filename = 'traindata.xlsx';
+train=xlsread(filename);
+forscaling=[train; coeffs2];
+ 
+%% performing feature scaling so that data converges
+meanval= mean(forscaling);
+stdval = std(forscaling,1);
+ 
+[m,n] = size(train);
+ 
+for j=1:n-1
+    for i=1:m
+        train(i,j)=(train(i,j)-meanval(j))/stdval(j);
+    end
+end
+ 
+[p,q] = size(coeffs2);
+ 
+for j=1:q-1
+    for i=1:p
+        coeffs2(i,j)=(coeffs2(i,j)-meanval(j))/stdval(j);
+    end
+end
+```
+
