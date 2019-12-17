@@ -4,4 +4,5 @@ This project uses machine learning approach to recognise speaker based on featur
 
 ### Brief Introduction of the Algorithm:
 I extracted features from voice which is fundamental to every speaker. Some of these features are pitch and MFCC (Mel-frequency cepstral coefficients). I extracted these features from voice data and stored them to use later for training in machine learning algorithm. The algorithm that was used in order to classify speaker is K nearest neighbor(KNN). This is a supervised classifier algorithm. Features extracted are used in KNN to make the training data. Then when new user input (speech) is given, KNN algorithm identifies the speaker based on the training data. 
-![Algorithm](https://www.mathworks.com/help/examples/audio_wavelet/win64/xxSpeakerID01.png | width=100)
+
+<img src="https://www.mathworks.com/help/examples/audio_wavelet/win64/xxSpeakerID01.png" width="600">
