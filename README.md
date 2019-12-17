@@ -55,10 +55,10 @@ This project has two parts:
 * Testing Module: speaker was identified with the help of trained classifier.
 
 ### Part 1: Training Module:
-In training module, all speakers voice data were recorded along with his name/no. to extract features from their voice and then store them in an excel file, for later use (testing). All the steps of training module is explained step by step below-
+In training module, all speakers voice data were recorded along with his name/user ID to extract features from their voice and then store them in an excel file, for later use (testing). All the steps of training module is explained step by step below-
 
 #### Collecting voice data along with Speaker ID: 
-We take voice samples from each of the volunteer speakers, and a voice ID for each of them (Dhrubo=1, Nadim=2, Rafee=3). We collect voice data using Window 10’s default voice recorder for better quality of the voice data.
+We take voice samples from each of the volunteer speakers, and a user ID for each of them (Dhrubo=1, Nadim=2, Rafee=3). We collect voice data using Window 10’s default voice recorder for better quality of the voice data.
 
 
 ```matlab
@@ -163,7 +163,7 @@ These steps below for testing module are almost exactly same as training module-
 #### Feature Scaling:
 Now we will Import Excel data that we stored in training phase. Now we have training data in excel file from training phase and test data. All features in both these data need feature scaling for better convergence. Formula and matlab code looks like below:
 
-<img src="https://github.com/NadimC137/SpeakerRecognitionKNN/blob/master/images/eqn1.gif" width="400">
+<img src="https://github.com/NadimC137/SpeakerRecognitionKNN/blob/master/images/eqn1.gif" width="200">
 
 ```matlab
 %% loading training data to start machine learning algorithm (K nearest neighbor)
@@ -190,5 +190,84 @@ for j=1:q-1
         coeffs2(i,j)=(coeffs2(i,j)-meanval(j))/stdval(j);
     end
 end
+
 ```
 
+#### KNN Algorithm Implementation:
+After framing and calculating MFCC and pitch, we have got good number of frames as test data, each of them will be tested using KNN. Then we will take the most frequent result out of all test frame.
+Steps applying KNN to any one frame are given below-
+
+* Calculate the Euclidian distance between test sample frame and every training sample frame. Formula is-
+
+ <img src="https://github.com/NadimC137/SpeakerRecognitionKNN/blob/master/images/eqn2.png" width="400">
+ 
+*	Define the value of K, number of nearest neighbor that we are going to pick.
+*	Add the distance and the index of the example to an ordered collection.
+*	Sort the ordered collection of distances and indices from smallest to largest (in ascending order) by the distances.
+*	Pick the first K entries from the sorted collection.
+*	Get the user ID of the selected K entries.
+*	Return the most frequent of the selected user IDs.
+
+For all test samples we have to do these calculation and find their KNN prediction. Out of all those prediction, the most frequent prediction is selected as the user ID of the speaker.
+
+We also implemented an optional feature, that if an unknown user speaks, then system will detect and will output 0 as ID. We took a threshold for Euclidian distance, if distance is more than threshold, voice data is considered to be of unknown user. 
+
+Matlab implementation-
+
+```matlab
+% k nearest neighbor algorithm to detect speaker
+ 
+sqdist=zeros(m,n-1,p);
+ 
+for k=1:p
+   for j=1:n-1
+       for i=1:m
+           sqdist(i,j,k)=(coeffs2(k,j)-train(i,j))^2;
+       end
+   end
+end
+ 
+sumval=zeros(m,p);
+ 
+for k=1:p
+    for i=1:m
+       sumval(i,k)=sum(sqdist(i,:,k));
+    end
+end
+ 
+ 
+ 
+kval=10;           
+[b,ind] = mink(sumval,kval);
+ 
+ 
+[u,v]=size(ind);
+ 
+result=zeros(1,v);
+resultmtx=zeros(u,v);
+ 
+for j=1:v
+    
+    dhrubo=0; %user1
+    nadim=0; %user2
+    rafee=0; %user3
+    
+    for i=1:u
+        indx=ind(i,j);
+        resultmtx(i,j)= train(indx,15);
+    end
+    result(1,j)=mode(resultmtx(:,j));
+    
+end
+        
+ [final,freq] = mode(result); 
+ accuracy=(freq/length(result))*100;
+ disp(accuracy);
+ disp(final)
+
+```
+
+### Further Improvements:
+*	Wavelet transform can be used for speech detection and pitch detection. This will improve frame selection. 
+*	More features can be extracted like delta and delta-delta. Delta is the derivative of MFCC and delta-delta is the derivative of delta.
+*	Other supervised classifier machine learning algorithm can be applied to get improvement in this model. GMM (Gaussian Mixture Model) is one example for this.
