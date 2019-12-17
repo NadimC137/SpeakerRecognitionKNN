@@ -12,3 +12,5 @@ Every supervised classifiers need some features for every sample data (training 
 
 
 <img src="https://github.com/NadimC137/SpeakerRecognitionKNN/blob/master/images/knn1.png" width="600">
+
+Now we want to detect a patient’s condition, whose data has been plotted using star sign. We intend to find out the class of the star. It can be green or red. The “K” in KNN algorithm is the nearest neighbors we wish to take vote from. Let’s say K = 3. Hence, we will now make a circle with the star as center just as big as to enclose only three data points on the plane. Refer to following diagram for more details:
