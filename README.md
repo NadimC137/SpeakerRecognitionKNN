@@ -199,7 +199,7 @@ Steps applying KNN to any one frame are given below-
 
 * Calculate the Euclidian distance between test sample frame and every training sample frame. Formula is-
 
- <img src="https://github.com/NadimC137/SpeakerRecognitionKNN/blob/master/images/eqn2.png" width="400">
+ <img src="https://github.com/NadimC137/SpeakerRecognitionKNN/blob/master/images/eqn2.png" width="300">
  
 *	Define the value of K, number of nearest neighbor that we are going to pick.
 *	Add the distance and the index of the example to an ordered collection.
