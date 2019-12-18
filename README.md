@@ -10,11 +10,11 @@ I extracted features from voice which is fundamental to every speaker. Some of t
 Every supervised classifiers need some features for every sample data (training or testing). Let us say, a similar type of problem where whether a patient has cancer or not, has to be detected. Each patient data has two features by which we can decide whether he has cancer or not. Then we can plot every train data, where x and y axis represent two feature values. If the red samples are positive and green are negative then it should look something like below.
 
 
-<img src="https://github.com/NadimC137/SpeakerRecognitionKNN/blob/master/images/knn1.png" width="600">
+<img src="https://github.com/NadimC137/SpeakerRecognitionKNN/blob/master/images/knn1.png" width="400">
 
 Now we want to detect a patient’s condition, whose data has been plotted using star sign. We intend to find out the class of the star. It can be green or red. The “K” in KNN algorithm is the nearest neighbors we wish to take vote from. Let’s say K = 3. Hence, we will now make a circle with the star as center just as big as to enclose only three data points on the plane. Refer to following diagram to get an idea:
 
-<img src="https://github.com/NadimC137/SpeakerRecognitionKNN/blob/master/images/knn2.png" width="600">
+<img src="https://github.com/NadimC137/SpeakerRecognitionKNN/blob/master/images/knn2.png" width="400">
 
 The three closest points to the star is all Red. Hence, with good confidence level we can say that the star should belong to the class Red. That is, the patient has cancer. This is k nearest neighbor algorithm.
 
